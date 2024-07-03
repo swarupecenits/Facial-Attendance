@@ -1,5 +1,7 @@
 # Face Recognition Attendance System
 
+<img src="https://res.cloudinary.com/dagggqd6g/image/upload/f_auto,q_auto/u0zegnahgcc4sedaz4ff"/>
+
 This project implements a face recognition attendance system using OpenCV, face_recognition, and a webcam. It detects and recognizes faces in real-time and marks attendance by storing the recognized faces with timestamps in a CSV file.
 
 ## Overview
