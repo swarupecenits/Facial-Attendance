@@ -4,14 +4,14 @@ import face_recognition
 import os
 from datetime import datetime
 
-path = 'images'
+path = "images"
 images = []
 classNames = []
 
 # List all subfolders in the parent directory
 subfolders = [f.path for f in os.scandir(path) if f.is_dir()]
 
-print('Total students detected:', len(subfolders))
+print("Total students detected:", len(subfolders))
 
 for subfolder in subfolders:
     personName = os.path.basename(subfolder)
@@ -25,6 +25,7 @@ for subfolder in subfolders:
 
 # print(classNames) #students names
 
+
 def findEncodings(images):
     encodeList = []
     for img in images:
@@ -33,20 +34,29 @@ def findEncodings(images):
         encodeList.append(encode)
     return encodeList
 
+
 def markAttendance(name):
-    with open('Attendance.csv', 'r+') as f:
+    file_exists = os.path.isfile("Attendance.csv")
+
+    with open('Attendence.csv', 'r+') as f:
+        if not file_exists:
+            f.writelines("Name,Date,Time\n")
+
         myDataList = f.readlines()
         nameList = []
         for line in myDataList:
-            entry = line.split(',')
+            entry = line.split(",")
             nameList.append(entry[0])
+
         if name not in nameList:
             now = datetime.now()
-            dtString = now.strftime('%Y-%m-%d %H:%M:%S')  # Include both date and time
-            f.writelines(f'\n{name},{dtString}')
+            dateString = now.strftime("%Y-%m-%d")
+            timeString = now.strftime("%H:%M:%S")
+            f.writelines(f"\n{name},{dateString},{timeString}")
+
 
 encodeListKnown = findEncodings(images)
-print('Encoding Complete')
+print("Encoding Complete")
 
 cap = cv2.VideoCapture(0)
 
@@ -63,7 +73,9 @@ while True:
         faceDis = face_recognition.face_distance(encodeListKnown, encodeFace)
         matchIndex = np.argmin(faceDis)
 
-        if matches[matchIndex] and faceDis[matchIndex] < 0.6:  # You can adjust the threshold value
+        if (
+            matches[matchIndex] and faceDis[matchIndex] < 0.6
+        ):  # You can adjust the threshold value
             name = classNames[matchIndex].upper()
         else:
             name = "UNKNOWN"
@@ -72,12 +84,14 @@ while True:
         y1, x2, y2, x1 = y1 * 4, x2 * 4, y2 * 4, x1 * 4
         cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 255), 2)
         cv2.rectangle(img, (x1, y2 - 35), (x2, y2), (255, 0, 255), cv2.FILLED)
-        cv2.putText(img, name, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0), 2)
+        cv2.putText(
+            img, name, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 2
+        )
 
         if name != "UNKNOWN":
             markAttendance(name)
 
-    cv2.imshow('Webcam', img)
+    cv2.imshow("Webcam", img)
     if cv2.waitKey(1) & 0xFF == 27:  # ESC key to break
         break
 
